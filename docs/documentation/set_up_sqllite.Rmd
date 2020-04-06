@@ -1,0 +1,61 @@
+---
+title: "Setting up an RMS like DB"
+author: "Chris Callaghan - CORE Lab"
+date: "`r format(Sys.Date())`"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+options(width = 150)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(RSQLite)
+library(dplyr)
+```
+
+
+```{r, eval = TRUE}
+mydb <- dbConnect(SQLite(), "my-db.sqlite")
+```
+
+
+```{r, eval = TRUE}
+odbc::dbWriteTable(mydb,
+                   name = "criminal_events",
+                   value = read.csv(file = here::here("raw-data/criminal_events.csv")),
+                   row.names = FALSE,
+                   overwrite = TRUE)
+odbc::dbWriteTable(mydb,
+                   name = "person_info",
+                   value = read.csv(file = here::here("raw-data/person_info.csv")),
+                   row.names = FALSE,
+                   overwrite = TRUE)
+odbc::dbWriteTable(mydb,
+                   name = "person_x_events",
+                   value = read.csv(file = here::here("raw-data/person_x_events.csv")),
+                   row.names = FALSE,
+                   overwrite = TRUE)
+```
+
+Now test:
+
+```{r, eval = TRUE}
+odbc::dbListTables(mydb)
+```
+
+Disconnect:
+
+```{r, eval = TRUE}
+odbc::dbDisconnect(mydb)
+```
+
+
+
+

@@ -1,0 +1,29 @@
+<script>
+(function() {
+  var divHTML = document.querySelectorAll(".r-collapse-code");
+  divHTML.forEach(function (el) {
+    var preNodes = el.getElementsByTagName("pre");
+    if (preNodes.length < 1) return;
+    var inputNode = preNodes[0];
+    inputNode.outerHTML = "<details " +
+      (el.classList.contains("open") ? "open " : "") +
+      "class='input'><summary>R Code</summary>" +
+      inputNode.outerHTML + "</details>";
+  })
+})();
+</script>
+
+<script>
+(function() {
+  var divHTML = document.querySelectorAll(".sql-collapse-code");
+  divHTML.forEach(function (el) {
+    var preNodes = el.getElementsByTagName("pre");
+    if (preNodes.length < 1) return;
+    var inputNode = preNodes[0];
+    inputNode.outerHTML = "<details " +
+      (el.classList.contains("open") ? "open " : "") +
+      "class='input'><summary>SQL Code</summary>" +
+      inputNode.outerHTML + "</details>";
+  })
+})();
+</script>

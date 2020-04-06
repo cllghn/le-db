@@ -33,8 +33,10 @@ shinyServer(function(input, output) {
   output$visplot <- renderVisNetwork({
     visNetwork(nodes = get_data()[["nodes"]],
                edges = get_data()[["edges"]]) %>%
+      visIgraphLayout(layout = "layout_with_fr") %>%
       visOptions(highlightNearest = TRUE,
-                 nodesIdSelection = TRUE)%>%
+                 nodesIdSelection = TRUE,
+                 manipulation     = TRUE)%>%
       visInteraction(navigationButtons = TRUE,
                      keyboard          = TRUE)
   })

@@ -1,0 +1,203 @@
+---
+title: "Accessing Network Data from a Database"
+author: "Christopher Callaghan - Common Operational Research Environment (CORE) Lab"
+date: "`r format(Sys.Date())`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 4
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%"
+)
+options(width = 150)
+```
+
+Load the relevant libraries:
+
+```{r, message=FALSE}
+library(RSQLite)
+library(dplyr)
+library(dbplyr)
+```
+
+# Getting Up and Running
+
+Set up access variables for the database:
+
+```{r}
+con <- dbConnect(SQLite(), "my-db.sqlite")
+```
+
+
+# Interfacing with the Remote Database
+
+Retrieve the names of available tables:
+
+```{r}
+dbListTables(con)
+```
+
+You can use R to select variables from the tables in the database, like so:
+
+```{r}
+con %>%
+  tbl("criminal_events") %>%
+  filter(FBI.Code == "08B") %>%
+  collect() %>%
+  glimpse()
+```
+
+```{r}
+con %>%
+  tbl("person_info") %>%
+  filter(Sex == "M") %>%
+  collect() %>%
+  glimpse()
+```
+
+```{r}
+con %>%
+  tbl("person_x_events") %>%
+  collect() %>%
+  glimpse()
+```
+
+However, you can also run these queries in SQL, using the code below:
+```{r, message = TRUE}
+con %>%
+  tbl("criminal_events") %>%
+  filter(FBI.Code == "08B") %>%
+  show_query()
+```
+
+```{r, message = TRUE}
+con %>%
+  tbl("person_info") %>%
+  filter(Sex == "M") %>%
+  show_query()
+```
+
+```{r, message = TRUE}
+con %>%
+  tbl("person_x_events") %>%
+  show_query()
+```
+
+You can get as creative as you want.
+
+
+# Producing an Edge List
+
+This section presents you with various ways to generate an edge list:
+
+## Based on Crime Type
+
+Let's get a person-to-event edge list for ORA, for `BATTERY` and `ASSAULT`:
+
+```{r}
+con %>%
+  tbl("criminal_events") %>%
+  filter(Primary.Type == "Battery" | Primary.Type == "Assault") %>%
+  select(eventId, Primary.Type) %>%
+  collect() -> wanted_events
+
+con %>%
+  tbl("person_x_events") %>%
+  filter(eventId %in% !!wanted_events[['eventId']]) %>%
+  select(eventId, PID, Primary.Type) %>%
+  collect() %>%
+  mutate(source_type = "Event",
+         target_type = "Agent") %>%
+  rename(source = eventId, target = PID, relationship = Primary.Type) %>%
+  select(source_type, source, target_type, target, relationship) -> edge_list
+```
+```{r, echo = FALSE}
+edge_list %>%
+  glimpse()
+```
+
+Which you could translate to SQL using the `show_query()`.
+
+## Based on Person Identity
+
+Another way to query would be if you had a set of personal identifiers (`PID`) that you are interested in:
+
+```{r}
+wanted_ids <- c(2, 87, 225)
+
+con %>%
+  tbl("person_x_events") %>%
+  filter(PID %in% wanted_ids) %>%
+  select(eventId, PID, Primary.Type) %>%
+  collect() %>%
+  mutate(source_type = "Event",
+         target_type = "Agent") %>%
+  rename(source = eventId, target = PID, relationship = Primary.Type) %>%
+  select(source_type, source, target_type, target, relationship) -> edge_list
+```
+```{r, echo = FALSE}
+edge_list %>%
+  glimpse()
+```
+
+## Based on Geography
+
+Alternatively, you can isolate events on interest from an area:
+
+```{r}
+wanted_districts <- c(6, 7, 8)
+
+con %>%
+  tbl("criminal_events") %>%
+  filter(District %in% wanted_districts) %>%
+  select(eventId, Primary.Type) %>%
+  collect() -> wanted_events
+
+con %>%
+  tbl("person_x_events") %>%
+  filter(eventId %in% !!wanted_events[['eventId']]) %>%
+  select(eventId, PID, Primary.Type) %>%
+  collect() %>%
+  mutate(source_type = "Event",
+         target_type = "Agent") %>%
+  rename(source = eventId, target = PID, relationship = Primary.Type) %>%
+  select(source_type, source, target_type, target, relationship) -> edge_list
+```
+```{r, echo = FALSE}
+edge_list %>%
+  glimpse()
+```
+
+# Generate Nodelist
+
+For any of the edge lists above, you way want to generate a node table. First, for the people:
+
+```{r}
+con %>%
+  tbl("person_info") %>%
+  filter(PID %in% !!edge_list[['target']]) %>%
+  collect() -> nodes_agents
+```
+```{r, echo = FALSE}
+nodes_agents %>%
+  glimpse()
+```
+
+Second, for the organizations:
+
+```{r}
+con %>%
+  tbl("criminal_events") %>%
+  filter(eventId %in% !!edge_list[['source']]) %>%
+  collect() -> nodes_organizations
+```
+
+```{r, echo = FALSE}
+nodes_organizations %>%
+  glimpse()
+```
