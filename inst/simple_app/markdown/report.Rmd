@@ -1,0 +1,195 @@
+---
+title: "Social Network Analysis Report"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    theme: journal
+params:
+  edges: NA
+  nodes: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(igraph)
+library(visNetwork)
+g <- graph.data.frame(d = params$edges,
+                      directed = FALSE,
+                      vertices = params$nodes)
+```
+
+<br>
+
+## Sociogram
+
+```{r, echo = FALSE}
+data.frame(Directed = is.directed(g),
+           Nodes    = vcount(g),
+           Edges    = ecount(g)) %>%
+      DT::datatable(rownames = FALSE,
+                escape   = FALSE,
+                width    = "100%",
+                options  = list(
+                  dom          = "ti",
+                  scrollX      = TRUE,
+                  ordering     = FALSE,
+                  autoWidth    = FALSE,
+                  lengthChange = FALSE,
+                  searching    = FALSE,
+                  bInfo        = FALSE,
+                  bPaginate    = TRUE,
+                  bFilter      = FALSE
+                  )
+                )
+```
+
+
+```{r, echo=FALSE, message=FALSE, fig.align='center'}
+if ("color" %in% edge_attr_names(g)) {
+  edge_color <- edge_attr(g, "color")
+} else {
+  edge_color <- "slategrey"
+}
+
+g %>%
+  visIgraph() %>%
+  visNodes(size = 10, color = list(
+    background = "lightblue",
+    border     = edge_color,
+    highlight  = list(
+      background = "orange",
+      border     = "darkred"
+    )
+  )) %>%
+  visEdges(color = edge_color) %>%
+  visOptions(highlightNearest = TRUE, nodesIdSelection =list(
+    enabled = TRUE,
+    style   = 'width: 200px; height: 26px; border:none; outline:none;')) %>%
+  visInteraction(navigationButtons = TRUE
+  )
+```
+
+<br>
+
+## Global Network Metrics
+
+```{r, echo = FALSE}
+data.frame(Measure    = c("Density",
+                          "Global Clustering Coefficient",
+                          "Size",
+                          "Number of Edges",
+                          "Degree Centralization"
+                          ),
+           Score      = c(
+             round(edge_density(g),
+                   digits = 3),
+             round(transitivity(g, type = "global"),
+                   digits = 3),
+             vcount(g),
+             ecount(g),
+             round(centralization.degree(g, mode = "all")$centralization,
+                   digits = 3)
+             ),
+           Definition = c(
+             "Density is formally defined as the total number of observed ties in a network divided by the total possible number of ties in that network. The output ranges from 0 to 1.",
+             "The sum of each actor's clustering coefficient divided by the number of actors within the network.",
+             "A count of the number of actors in a network.",
+             "A count of the number of edges in the network.",
+             "The standard measure of centralization uses the variation in actor degree centrality within the network to measure the level of centralization. More variation yields higher network centralization scores, while less variation yields lower scores. Formally, it is the ratio of the actual sum of differences in actor centrality over the theoretical maximum, yielding a score somewhere between 0.0 and 1.0."),
+           Caveat      = c(
+             "It should not be used to compare networks of different sizes.",
+             "",
+             "Metric outputs are dependent upon network size. Also, the manner in which an analyst sets an examination's boundaries may not reflect the actual size of a network.",
+             "",
+             "Many network analysts confuse centrality and centalization."
+             ),
+           stringsAsFactors = FALSE
+    ) %>%
+      DT::datatable(rownames = FALSE,
+                escape   = FALSE,
+                width    = "100%",
+                options  = list(
+                  dom          = "ti",
+                  scrollX      = TRUE,
+                  ordering     = FALSE,
+                  autoWidth    = FALSE,
+                  lengthChange = FALSE,
+                  searching    = FALSE,
+                  bInfo        = FALSE,
+                  bPaginate    = TRUE,
+                  bFilter      = FALSE
+                  )
+                )
+```
+
+<br>
+
+## Cohesive Subgroups
+
+```{r, echo = FALSE}
+data.frame(Measure = c("Weak Components",
+                       "Number of Cliques",
+                       "Max K-Core"),
+           Score = c(
+             components(g, mode = "weak")$no,
+             length(cliques(g, min = 3)),
+             max(coreness(g))),
+           Definition = c("Subgroups of actors who can reach each other directly or indirectly.",
+                          "Maximal number of subsets of three or more where each actor is directly connected to all others.",
+                          "A maximal group of actors, all of whom are connected to some number (k) of other group members."),
+           Caveat = c("Applies to both undirected and directed data. Often not very useful in a well-connected network.",
+                      "Actors can belong to more than one clique, which can often makes identifying distinct subgroups impossible (i.e., where each actor is assigned to one and only one subgroup). Several alternative clique algorithms exist to ease the restrictions that each actor is directly connected to one another.",
+                      "Actors of the same core do not necessarily have to be connected to one another."),
+               stringsAsFactors = FALSE
+    ) %>%
+      DT::datatable(rownames = FALSE,
+                escape   = FALSE,
+                width    = "100%",
+                options  = list(
+                  dom          = "ti",
+                  scrollX      = TRUE,
+                  ordering     = FALSE,
+                  pageLength   = 3,
+                  autoWidth    = FALSE,
+                  lengthChange = FALSE,
+                  searching    = FALSE,
+                  bInfo        = FALSE,
+                  bPaginate    = TRUE,
+                  bFilter      = FALSE
+                )
+                )
+```
+
+<br>
+
+## Vertex Level Metrics
+
+```{r, echo = FALSE}
+data.frame(ID             = vertex_attr(g,
+                                        "name"),
+           `Total Degree` = degree(g, mode = "total"),
+           Betweenness    = round(betweenness(g, normalized = TRUE),
+                                  digits = 3),
+           Eigenvector    = round(eigen_centrality(g)$vector,
+                                  digits = 3),
+           `Inverse Constraint` = round(1.125 - constraint(g), digits = 3),
+           stringsAsFactors = FALSE
+           ) %>%
+  DT::datatable(rownames = FALSE,
+                escape   = FALSE,
+                width    = "100%",
+                options  = list(
+                  dom          = "tilfpr",
+                  scrollX      = TRUE,
+                  ordering     = TRUE,
+                  pageLength   = 10,
+                  autoWidth    = FALSE,
+                  lengthChange = FALSE,
+                  searching    = FALSE,
+                  bInfo        = TRUE,
+                  bPaginate    = TRUE,
+                  bFilter      = FALSE
+                  )
+                ) 
+```
+

@@ -1,0 +1,13 @@
+name: simple_app
+title: simple_app
+username:
+account: callaghancorelab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2068722
+bundleId: 2977512
+url: https://callaghancorelab.shinyapps.io/simple_app/
+when: 1586204614.29644
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: www/corelogo.png
