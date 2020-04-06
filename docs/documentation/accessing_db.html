@@ -385,14 +385,14 @@ summary {
 <div id="TOC">
 <ul>
 <li><a href="#getting-up-and-running">Getting Up and Running</a></li>
-<li><a href="#interfacing-with-the-remote-database">Interfacing with the Remote Database</a></li>
+<li><a href="#interfacing-with-the-portable-database">Interfacing with the Portable Database</a></li>
 <li><a href="#producing-an-edge-list">Producing an Edge List</a>
 <ul>
 <li><a href="#based-on-crime-type">Based on Crime Type</a></li>
 <li><a href="#based-on-person-identity">Based on Person Identity</a></li>
 <li><a href="#based-on-geography">Based on Geography</a></li>
 </ul></li>
-<li><a href="#generate-nodelist">Generate Nodelist</a></li>
+<li><a href="#generate-node-list">Generate Node List</a></li>
 </ul>
 </div>
 
@@ -405,8 +405,8 @@ library(dbplyr)</code></pre>
 <p>Set up access variables for the database:</p>
 <pre class="r"><code>con &lt;- dbConnect(SQLite(), &quot;my-db.sqlite&quot;)</code></pre>
 </div>
-<div id="interfacing-with-the-remote-database" class="section level1">
-<h1>Interfacing with the Remote Database</h1>
+<div id="interfacing-with-the-portable-database" class="section level1">
+<h1>Interfacing with the Portable Database</h1>
 <p>Retrieve the names of available tables:</p>
 <pre class="r"><code>dbListTables(con)
 #&gt; [1] &quot;criminal_events&quot; &quot;person_info&quot;     &quot;person_x_events&quot;</code></pre>
@@ -593,8 +593,8 @@ con %&gt;%
 #&gt; $ relationship &lt;chr&gt; &quot;DECEPTIVE PRACTICE&quot;, &quot;CRIMINAL DAMAGE&quot;, &quot;BATTERY&quot;, &quot;BATTERY&quot;, &quot;WEAPONS VIOLATION&quot;, &quot;WEAPONS VIOLATION&quot;, &quot;NARCOTICS&quot;, &quot;CRIMINA…</code></pre>
 </div>
 </div>
-<div id="generate-nodelist" class="section level1">
-<h1>Generate Nodelist</h1>
+<div id="generate-node-list" class="section level1">
+<h1>Generate Node List</h1>
 <p>For any of the edge lists above, you way want to generate a node table. First, for the people:</p>
 <pre class="r"><code>con %&gt;%
   tbl(&quot;person_info&quot;) %&gt;%

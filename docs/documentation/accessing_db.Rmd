@@ -34,7 +34,7 @@ con <- dbConnect(SQLite(), "my-db.sqlite")
 ```
 
 
-# Interfacing with the Remote Database
+# Interfacing with the Portable Database
 
 Retrieve the names of available tables:
 
@@ -173,7 +173,7 @@ edge_list %>%
   glimpse()
 ```
 
-# Generate Nodelist
+# Generate Node List
 
 For any of the edge lists above, you way want to generate a node table. First, for the people:
 
