@@ -1,6 +1,6 @@
 ---
 title: "RMS Carpentry"
-subtitle: "`r emo::ji('hammer')`</br> with OSS"
+subtitle: "`r emo::ji('hammer')`"
 author: "</br><small>  Christopher Callaghan"
 institute: "<img src = 'imgs/corelogo.png' height='60' width='120'>"
 date: "`r Sys.Date()` </small>"
@@ -64,13 +64,22 @@ __Option 1:__
 
 ---
 
+# My Assumptions
+
+  * Your organizations works with an RMS that is powered by an SQL database
+  * You, or someone in your organization, are able to interface with your database (preferably in read-only mode)
+  * You are somewhat familiar with SQL or are interested in learning
+  * You know SNA and have experience putting together data sets for this type of analysis
+
+---
+
 # Meet our database
 
 .pull-left[
 ![](imgs/sql-logo.png)
 ]
 .pull-right[
-Hypothetical database (SQLite) with three tables:
+Sample portable database (SQLite) with three tables:
   
   * `criminal_events`
   * `person_info`
