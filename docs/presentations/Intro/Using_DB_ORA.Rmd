@@ -458,9 +458,13 @@ knitr::include_graphics(path = "imgs/ora.png")
 ```{r, eval = FALSE}
 # Edges 
 tbl(con, "person_x_events") %>%
-  inner_join(., select(., eventId, PID2 = PID), by = "eventId") %>%
-  filter(Source != Target & Beat == 2232 & FBI.Code == "15") %>%
-  select(Source = PID, Target = PID2, eventId, UpdateDate) %>%
+  filter(Beat == 2232 & FBI.Code == "15") %>%
+  select(eventId, PID, UpdateDate) %>%
+  inner_join(., 
+             select(., eventId, PID2 = PID)) %>%
+  mutate(Source_Type = "Person", Target_Type = "Person", Relationship = "Co-Event") %>%
+  select(Source = PID, Source_Type, Target = PID2, Target_Type, Relationship, everything()) %>%
+  filter(Source != Target) %>%
   write.csv(row.names = FALSE, file = "edges.csv")
 # Nodes
 tbl(con, sql("SELECT `PID` AS `Id`, `Name_Prefix`, `Name_Given`, `Name_Middle`, `Name_Sur`, `Name_Suffix`, `Sex`, `Race`, `Height`, `Weight`, `HairColor`, `EyeColor`, `DOB`, `Birth_Country`, `Address_StreetNumber`, `Address_StreetName`, `Address_StreetSuffix`, `Address_StreetUnit`, `Probation`, `Custody`, `Gang`, `Parole`, `Dead`, `Caution`
