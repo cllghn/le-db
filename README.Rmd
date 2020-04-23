@@ -23,4 +23,4 @@ The code for all applications can be found under the `inst` folder. However, if 
 
 You can find the slides here:
 
-  * <a href="/le-db/docs/presentations/intro/Using_DB_ORA.html">RMS Carpentry - ORA</a>
+  1. TO DO

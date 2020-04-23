@@ -22,5 +22,4 @@ However, if you are only looking for the Shiny GUI, you may find them:
 
 You can find the slides here:
 
-  - <a href="/le-db/docs/presentations/intro/Using_DB_ORA.html">RMS
-    Carpentry - ORA</a>
+1.  TO DO
