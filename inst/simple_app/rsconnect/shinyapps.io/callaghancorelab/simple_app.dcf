@@ -5,9 +5,9 @@ account: callaghancorelab
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2068722
-bundleId: 2977632
+bundleId: 2978493
 url: https://callaghancorelab.shinyapps.io/simple_app/
-when: 1586206495.3232
+when: 1586220583.87067
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: www/corelogo.png
