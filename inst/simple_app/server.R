@@ -84,7 +84,7 @@ shinyServer(function(input, output) {
           fluidRow(
             textInput(
               inputId     = "report_name",
-              label       = "Report identifier:",
+              label       = "",
               value       = "",
               placeholder = "Identifier without extension...")
           ),
